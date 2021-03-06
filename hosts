@@ -1,0 +1,79 @@
+# This is the default ansible 'hosts' file.
+#
+# It should live in /etc/ansible/hosts
+#
+#   - Comments begin with the '#' character
+#   - Blank lines are ignored
+#   - Groups of hosts are delimited by [header] elements
+#   - You can enter hostnames or ip addresses
+#   - A hostname/ip can be a member of multiple groups
+
+[SRV2019]
+srv2019  ansible_host=192.168.240.210
+
+[SRVTIME]
+srvtime  ansible_host=192.168.240.220
+
+[WINSRV:children]
+SRV2019
+SRVTIME
+
+#[winsrv:vars]
+#[all:vars]
+#ansible_connection=winrm
+#ansible_port=5986
+#ansible_winrm_transport=credssp
+#ansible_winrm_server_cert_validation=ignore
+#ansible_user=ansibleMENT
+#ansible_password=Temp2021PASSWORD
+
+#  vars:
+#    ansible_connection: winrm
+#    ansible_port: 5986
+#    ansible_winrm_transport: credssp
+#    ansible_winrm_transport: ntlm
+#    ansible_winrm_server_cert_validation: ignore
+#    ansible_user: ansible
+#    ansible_password: Temp2021
+#    ansible_password: !vault |
+#          $ANSIBLE_VAULT;1.1;AES256
+#          64326464313933633961663739626139333066333132313735316538356663666161356132653538
+#          3731303238343231303537383964633233333963623562390a396137663061656664613161663534
+#          35353064636364656230623137386264623038613461376663343031656264373631356266313238
+#          3366373663643262370a373461313863346437353139633738346335366665346631323531356564
+#          6661
+
+# Ex 1: Ungrouped hosts, specify before any group headers.
+
+#green.example.com
+#blue.example.com
+#192.168.100.1
+#192.168.100.10
+
+# Ex 2: A collection of hosts belonging to the 'webservers' group
+
+#[webservers]
+#alpha.example.org
+#beta.example.org
+#192.168.1.100
+#192.168.1.110
+
+# If you have multiple hosts following a pattern you can specify
+# them like this:
+
+#www[001:006].example.com
+
+# Ex 3: A collection of database servers in the 'dbservers' group
+
+#[dbservers]
+#
+#db01.intranet.mydomain.net
+#db02.intranet.mydomain.net
+#10.25.1.56
+#10.25.1.57
+
+# Here's another example of host ranges, this time there are no
+# leading 0s:
+
+#db-[99:101]-node.example.com
+

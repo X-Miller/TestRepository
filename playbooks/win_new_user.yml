@@ -1,0 +1,12 @@
+---
+ - name: New User
+   hosts: SRV2019
+   tasks:
+
+    - name: Ensure user bob is present
+      ansible.windows.win_user:
+        name: ansible
+        password: Temp2021
+        state: present
+        groups:
+          - Администраторы

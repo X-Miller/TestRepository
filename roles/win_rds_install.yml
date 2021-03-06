@@ -1,0 +1,4 @@
+---
+- hosts: SRV2019
+  roles:
+    - role: win_rds_install

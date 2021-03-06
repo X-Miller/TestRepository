@@ -1,0 +1,98 @@
+---
+- name: Install ADDS for host srvtime
+  hosts: srvtime
+
+  vars:
+   - dns_domain_name: ad.testzakaz.ua
+   - dns_safe_mode_password: Temp2021
+
+#safe_mode_password: !vault |
+#          $ANSIBLE_VAULT;1.1;AES256
+#          6432646431393363396166373962613933306633313231373531653835666366>
+#          3731303238343231303537383964633233333963623562390a39613766306165>
+#          3535306463636465623062313738626462303861346137666334303165626437>
+#          3366373663643262370a37346131386334643735313963373834633536666534>
+#          6661
+
+
+
+#  vars_files:
+#   - /etc/ansible/group_vars/windows/vars_win.yml
+#  gather_facts: true
+
+  tasks:
+   - name: Install AD-Domain-Services for {{ansible_hostname}}
+     win_feature:
+       name: AD-Domain-Services
+       include_management_tools: true
+       include_sub_features: true
+       state: present
+     register: install_adds_result
+
+   - name: Result installing ADDS
+     debug: 
+      msg: "{{install_adds_result}}"
+
+   - name : pause for 10 seconds before provisioning another feature
+     pause:
+      seconds: 10
+
+# Configure DNS Feature
+
+   - name: Install DNS SubFeature
+     win_feature:
+       name: DNS
+       include_sub_features: true
+       include_management_tools: true
+       state: present
+     register: dns_result
+
+   - name: Result Install DNS SubFeature
+     debug:
+       msg: "{{dns_result}}"
+
+# Reboot after ADDS configuration
+   - name: Reboot after ADDS configuration
+     win_reboot:
+       connect_timeout: 15
+       post_reboot_delay: 15
+     when: install_adds_result.reboot_required
+
+   - name: Wait for system to become reachable over WinRM
+     wait_for_connection:
+       timeout: 900
+
+# Initialise Forest (Promote DC)
+   - name: Initialise Forest
+     win_domain:
+       dns_domain_name: "{{ dns_domain_name }}"
+       safe_mode_password: "{{ dns_safe_mode_password }}"
+     register: result_create_forest
+
+   - name: Result create Forest
+     debug:
+       msg: "{{result_create_forest}}"
+
+   - name: Reboot after creation forest
+     win_reboot:
+      connect_timeout: 15
+      post_reboot_delay: 15
+      reboot_timeout: 200
+     when: result_create_forest.reboot_required
+
+   - name: Wait for system to become reachable over WinRM
+     wait_for_connection:
+       timeout: 900
+
+
+
+#   - name: install domain
+#     win_domain: >
+#        dns_domain_name='{{ dns_name }}'
+#        safe_mode_password= Temp20211
+#     register: ad
+#   - name: reboot server
+#     win_reboot:
+#      msg: "Installing AD. Rebooting..."
+#      pre_reboot_delay: 15
+#     when: ad.changed

@@ -1,0 +1,28 @@
+---
+# Enadle RDP to the host "______" ("{{ansible_hostname}}")
+
+- name: "Enadle RDP to the host MYHOST: ({{ansible_hostname}})"
+  hosts: SRV2019
+
+  tasks:
+  - name: Enable Remote Desktop
+    win_regedit:
+      path: 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server'
+      name: fDenyTSConnections
+      data: 0
+      type: dword
+
+  - name: Allow connections from computers running any version of Remote Desktop (less secure)
+    win_regedit:
+      path: 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp'
+      name: UserAuthentication
+      data: 1
+      type: dword
+
+  - name: Enable Firewall Inbound Rules Group
+    win_shell: Enable-NetFirewallRule -DisplayGroup "{{ item }}"
+    changed_when: false
+    loop:
+      - Remote Desktop
+#      - Дистанционное управление рабочим столом
+#      - Windows Remote Management

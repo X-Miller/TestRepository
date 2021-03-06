@@ -1,0 +1,21 @@
+---
+# tasks file for win_rds_install
+
+- name: Windows Remote Desktop Feature Enabled
+  win_feature:
+    name: Remote-Desktop-Services
+    include_sub_feature: true
+    include_management_tools: true
+    state: present
+  register: result_windows_rds_install
+  when: windows_remote_desktop_install
+
+- name: Result RDS Install the {{ansible_hostname}}
+  debug:
+    msg: "{{result_windows_rds_install}}"
+
+- name: reboot | Rebooting Server
+  win_reboot:
+    connect_timeout: 15
+    post_reboot_delay: 15
+    reboot_timeout: 200

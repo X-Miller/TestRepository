@@ -1,0 +1,4 @@
+---
+# defaults file for win_rds_install
+
+windows_remote_desktop_install: true

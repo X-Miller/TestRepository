@@ -1,0 +1,20 @@
+---
+- name: Install IIS Web-Server with management tools
+  hosts: srvtime
+  tasks:
+     - name: Install IIS Web-Server with management tools to host {{ansible_hostname}}
+       win_feature:
+        name:
+        - Web-Server
+        - Web-Common-Http
+        include_sub_features: true
+        include_management_tools: true
+       register: result_win_feature_iis
+
+     - name: Result insrall IIS Web-Server to {{ansible_hostname}}
+       debug:
+         msg: "{{result_win_feature_iis}}"
+
+     - name: Reboot if installing IIS Web-Server feature required it.
+       win_reboot:
+       when: result_win_feature_iis.reboot_required

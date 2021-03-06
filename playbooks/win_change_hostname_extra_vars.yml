@@ -1,0 +1,24 @@
+---
+- name: "Change the hostname for host: srvtime to --extra-vars"
+  hosts: "{{HOSTNAME}}"
+
+  tasks:
+   - name: "Change the hostname for host: srvtime to {{ansible_hostname}}"
+     win_hostname:
+       name: "{{NEWHOSTNAME}}"
+     register: new_computer_name_result
+
+   - name: Collect computer name result
+     debug:
+       msg: "{{ new_computer_name_result }}"
+     when: new_computer_name_result is changed
+
+   - name: Reboot (After change hostname for host srvtime)
+     win_reboot:
+      connect_timeout: 15
+      post_reboot_delay: 15
+     when: new_computer_name_result is changed
+
+   - name: Wait for system to become reachable over WinRM
+     wait_for_connection:
+      timeout: 900
